@@ -25,10 +25,9 @@ def get_file_checksum(path):
     return os.popen(f'md5sum "{path}" | cut -d" " -f 1').read().strip()
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
 ch.setFormatter(logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s'))
 
 logger.addHandler(ch)
@@ -130,7 +129,7 @@ class Pykefile:
         rule = self.resolve_target(target)
 
         if not rule:
-            logger.warning(f'No rule found for "{target}", skipping')
+            logger.warning(f'Skipping terminal target "{target}"')
             return
         
         # First try build all sources recursively 
@@ -167,6 +166,8 @@ class Pykefile:
         self.build_target(target)
 
     def build_with_args(self, argv):
+        logger.setLevel(logging.ERROR)
+        
         targets = []
         force = False
 
@@ -175,8 +176,19 @@ class Pykefile:
             if args[0] == '-f':
                 args.pop(0)
                 force = True
+            elif args[0] == '-v':
+                args.pop(0)
+                logger.setLevel(logging.WARNING)
+            elif args[0] == '-vv':
+                args.pop(0)
+                logger.setLevel(logging.INFO)
+            elif args[0] == '-vvv':
+                args.pop(0)
+                logger.setLevel(logging.DEBUG)
             else:
                 targets.append(args.pop(0))
+
+        [logger.debug(f'Registered {rule}') for rule in self.rules.values()]
 
         if len(targets) == 0:
             self.build(force=force)
