@@ -1,11 +1,38 @@
 #!/usr/bin/env python
 
+import inspect
+import linecache
 import sys
 import os
 
+pykefile_source = open("pykefile.py", "r").read()
 
-print(f'Current directory: "{os.getcwd()}"')
-print(f'Argument List: {sys.argv}')
+def exec_getsource(code):
+    getlines = linecache.getlines
 
-os.system("python pykefile.py")
+    def monkey_patch(filename, module_globals=None):
+        if filename == '<string>':
+            return code.splitlines(keepends=True)
+        else:
+            return getlines(filename, module_globals)
+    linecache.getlines = monkey_patch
 
+    try:
+        exec(code, {})
+    finally:
+        linecache.getlines = getlines
+
+
+exec_getsource(f"""
+from pyke import *
+import os
+import sys
+
+run = os.system
+pykefile = Pykefile()
+rule = pykefile.rule
+
+{pykefile_source}
+
+pykefile.build_with_args(sys.argv)
+""")

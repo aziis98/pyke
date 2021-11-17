@@ -119,9 +119,13 @@ class Pykefile:
 
         return None
 
-    def build_target(self, target=None):
+    def build_target(self, target=None, trace=[]):
         if target == None:
             target = self.rules[list(self.rules)[-1]].target
+
+        if target in trace:
+            logger.error(f'Found dependency cycle caused by "{target}", aborting! Trace: {trace}')
+            exit(1)
 
         rule = self.resolve_target(target)
 
@@ -131,7 +135,7 @@ class Pykefile:
         
         # First try build all sources recursively 
         for source in rule.sources:
-            self.build(source)
+            self.build_target(source, [*trace, target])
 
         # TODO: This step can be easily parallelized
         sources_checksums = { path: get_file_checksum(path) for path in rule.sources }
@@ -151,13 +155,31 @@ class Pykefile:
         else:
             logger.info(f'Target "{target}" is up to date')
 
-    def build(self, target=None):
+    def build(self, target=None, force=False):
         own_hash = get_file_checksum("pykefile.py")
         own_old_hash = self.cache.get_checksum("pykefile.py")
 
-        if own_hash != own_old_hash:
+        if force or own_hash != own_old_hash:
             self.cache.clear()
             self.cache.set_checksum("pykefile.py", own_hash)
             self.cache.save()
 
         self.build_target(target)
+
+    def build_with_args(self, argv):
+        targets = []
+        force = False
+
+        args = argv[1:]
+        while len(args) > 0:
+            if args[0] == '-f':
+                args.pop(0)
+                force = True
+            else:
+                targets.append(args.pop(0))
+
+        if len(targets) == 0:
+            self.build(force=force)
+        else:
+            for target in targets:
+                self.build(target, force)
