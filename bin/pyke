@@ -24,6 +24,7 @@ def exec_getsource(code):
 
 
 exec_getsource(f"""
+
 from pyke import *
 import os
 import sys
@@ -34,5 +35,5 @@ rule = pykefile.rule
 
 {pykefile_source}
 
-pykefile.build_with_args(sys.argv)
+build_with_args(pykefile, sys.argv)
 """)

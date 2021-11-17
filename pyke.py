@@ -81,10 +81,14 @@ class PykefileCache:
         open(self.path, "w").write(content)
 
     def clear(self):
+        logger.debug(f'Updating clearing checksum cache')
         self.data['checksums'].clear()
+        self.save()
 
     def set_checksum(self, path, value):
+        logger.debug(f'Updating checksum of "{path}"')
         self.data['checksums'][path] = value
+        self.save()
 
     def get_checksum(self, path):
         if path not in self.data['checksums']:
@@ -149,8 +153,6 @@ class Pykefile:
             # Updates the checksums of the source files of this target
             for path, value in sources_checksums.items():
                 self.cache.set_checksum(path, value)
-            
-            self.cache.save()
         else:
             logger.info(f'Target "{target}" is up to date')
 
@@ -161,37 +163,37 @@ class Pykefile:
         if force or own_hash != own_old_hash:
             self.cache.clear()
             self.cache.set_checksum("pykefile.py", own_hash)
-            self.cache.save()
 
         self.build_target(target)
 
-    def build_with_args(self, argv):
-        logger.setLevel(logging.ERROR)
-        
-        targets = []
-        force = False
+def build_with_args(pykefile, argv):
+    logger.setLevel(logging.ERROR)
+    
+    targets = []
+    force = False
 
-        args = argv[1:]
-        while len(args) > 0:
-            if args[0] == '-f':
-                args.pop(0)
-                force = True
-            elif args[0] == '-v':
-                args.pop(0)
-                logger.setLevel(logging.WARNING)
-            elif args[0] == '-vv':
-                args.pop(0)
-                logger.setLevel(logging.INFO)
-            elif args[0] == '-vvv':
-                args.pop(0)
-                logger.setLevel(logging.DEBUG)
-            else:
-                targets.append(args.pop(0))
-
-        [logger.debug(f'Registered {rule}') for rule in self.rules.values()]
-
-        if len(targets) == 0:
-            self.build(force=force)
+    args = argv[1:]
+    while len(args) > 0:
+        if args[0] == '-f':
+            args.pop(0)
+            force = True
+        elif args[0] == '-v':
+            args.pop(0)
+            logger.setLevel(logging.WARNING)
+        elif args[0] == '-vv':
+            args.pop(0)
+            logger.setLevel(logging.INFO)
+        elif args[0] == '-vvv':
+            args.pop(0)
+            logger.setLevel(logging.DEBUG)
         else:
-            for target in targets:
-                self.build(target, force)
+            targets.append(args.pop(0))
+
+    [logger.debug(f'Registered {rule}') for rule in pykefile.rules.values()]
+
+    if len(targets) == 0:
+        pykefile.build(force=force)
+    else:
+        for target in targets:
+            pykefile.build(target, force)
+
