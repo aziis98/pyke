@@ -1,6 +1,6 @@
 # Pyke
 
-This is "weekend project" is a small clone (just 200LoC) of GNU Make with the twist that it only rebuilds a file if the hash of any of its sources changes. This is named **Pyke** as in **Py**thon + Ma**ke** (I have no hope of being the first coming up with this name for a project).
+This _weekend project_ is a small clone ([a single file of just about 200LoC](./pyke.py)) of GNU Make with the twist that it only rebuilds a target only if the hash of any of its sources changes. This is named **Pyke** as in **Py**thon + Ma**ke** (I have no hope of being the first coming up with this name for a project).
 
 ## Usage
 
@@ -38,7 +38,7 @@ There are some examples in [./examples](./examples).
 
 ### [Simple](./examples/simple)
 
-This example shows how this approach is better in this case in respect to Make.
+This example shows how the checksums approach is better in this case with respect to Make.
 
 ```python
 @rule('b.txt', ['a.txt'])
@@ -51,9 +51,7 @@ def _(target, source, sources):
     run(f'cat {source} {source} {source} > {target}')
 ```
 
-The file `b.txt` depends only on a part of `a.txt` 
-so changes to its end don't trigger the recompilation of
-targets that depend only on `b.txt`.
+The file `b.txt` depends only on a part of `a.txt` so changes to its end don't trigger the recompilation of targets that depend only on `b.txt`. In this case, Make couldn't have figured that changes to the end of `a.txt` don't affect `b.txt`. 
 
 ### [C](./examples/c)
 
@@ -71,7 +69,7 @@ def _(target, source, sources):
 
 ### [Cycle](./examples/cycle)
 
-This example shows the cycle detection
+This example shows the cycle detection feature
 
 ```python
 @rule('a', ['c'])
