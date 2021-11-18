@@ -94,5 +94,7 @@ $ pyke
 [ERROR] Found dependency cycle caused by "c", aborting! Trace: ['c', 'b', 'a']
 ```
 
+## TODOs
 
+- Move the code of `pyke.build_with_args()` directly inside `bin/pike` and decouple the logging code in its own module to let the logging level be changed from the start script. 
 
