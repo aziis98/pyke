@@ -166,6 +166,24 @@ class Pykefile:
 
         self.build_target(target)
 
+HELP_TEXT="""
+Usage: pyke [-f|--force] [-v|-vv|-vvv] [-h|--help] TARGETS...
+
+A small clone of GNU Make with a python build script that
+recompiles targets based on their checksums.
+
+If no TARGETS are present then the last recipe is used as
+a starting point.
+
+Options:
+  -f, --force   Clean the checksum to force recompilation 
+                of all given targets
+  -h, --help    Shows this message
+  -v            Logs warning, by default only errors are printed 
+  -vv           Also logs info level messages
+  -vvv          Also logs debug messages
+"""
+
 def build_with_args(pykefile, argv):
     logger.setLevel(logging.ERROR)
     
@@ -174,7 +192,7 @@ def build_with_args(pykefile, argv):
 
     args = argv[1:]
     while len(args) > 0:
-        if args[0] == '-f':
+        if args[0] == '--force' or args[0] == '-f':
             args.pop(0)
             force = True
         elif args[0] == '-v':
@@ -186,6 +204,9 @@ def build_with_args(pykefile, argv):
         elif args[0] == '-vvv':
             args.pop(0)
             logger.setLevel(logging.DEBUG)
+        elif args[0] == '--help' or args[0] == '-h':
+            print(HELP_TEXT)
+            exit(0)
         else:
             targets.append(args.pop(0))
 

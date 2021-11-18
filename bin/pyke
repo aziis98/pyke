@@ -5,8 +5,13 @@ import linecache
 import sys
 import os
 
+if not os.path.exists('pykefile.py'):
+    print(f'Missing "pykefile.py" build script in this folder')
+    exit(1)
+
 pykefile_source = open("pykefile.py", "r").read()
 
+# https://stackoverflow.com/a/69668999/2343099
 def exec_getsource(code):
     getlines = linecache.getlines
 
@@ -25,15 +30,15 @@ def exec_getsource(code):
 
 exec_getsource(f"""
 
-from pyke import *
+import pyke
 import os
 import sys
 
 run = os.system
-pykefile = Pykefile()
+pykefile = pyke.Pykefile()
 rule = pykefile.rule
 
 {pykefile_source}
 
-build_with_args(pykefile, sys.argv)
+pyke.build_with_args(pykefile, sys.argv)
 """)
