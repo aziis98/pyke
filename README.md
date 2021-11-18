@@ -57,7 +57,7 @@ targets that depend only on `b.txt`.
 
 ### [C](./examples/c)
 
-A simple example that show generic rule with "`%`" for creating object files from the sources `main.c` and `util.c` and then linking them.
+A simple example that shows a generic rule with "`%`" for creating object files from the sources `main.c` and `util.c` and then linking them.
 
 ```python
 @rule('%.o', ['%.c'])
