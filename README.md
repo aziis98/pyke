@@ -1,6 +1,6 @@
 # Pyke
 
-This _weekend project_ is a small clone ([a single file of just about 200LoC](./pyke.py)) of GNU Make with the twist that it only rebuilds a target only if the hash of any of its sources changes. This is named **Pyke** as in **Py**thon + Ma**ke** (I have no hope of being the first coming up with this name for a project).
+This _weekend project_ is a small clone (most of the code is in [a single file](./pyke.py) of just about 200LoC) of GNU Make with the twist that it rebuilds a target only if the hash of any of its sources changes. This is named **Pyke** as in **Py**thon + Ma**ke** (I have no hope of being the first coming up with this name for a project).
 
 ## Usage
 
