@@ -126,6 +126,11 @@ class Pykefile:
         if target == None:
             target = self.rules[list(self.rules)[-1]].target
 
+        # TODO: Maybe compute hash by concatenating the hashes of its children.
+        if os.path.isdir(target):
+            logger.error(f'Can\'t build "{target}", it\'s already a directory')
+            exit(1)
+
         if target in trace:
             logger.error(f'Found dependency cycle caused by "{target}", aborting! Trace: {trace}')
             exit(1)
